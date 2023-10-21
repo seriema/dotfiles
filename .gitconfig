@@ -1,0 +1,58 @@
+[user]
+	name = John-Philip Johansson
+	email = jp.johansson@mojang.com
+[filter "lfs"]
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process
+	required = true
+[core]
+	longpaths = true
+	sshCommand = C:/Windows/System32/OpenSSH/ssh.exe
+[alias]
+	lg = log --color --pretty=format:'%C(yellow)%h%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+
+	cl = clean -xdf -e .vscode
+
+	prOld = "!f() { git branch --merged | grep -v '*' | xargs -r -n 1 git branch -d; }; f"
+	pr = "!f() { git fetch --prune --quiet && for branch in $(git branch -vv | grep ': gone]' | awk '{print $1}'); do git branch -D $branch; done; }; f"
+	
+	keys = "!f() { git lfs locks | grep seriema; }; f"
+	
+	rb = "!f() { git fetch --prune && git stash && git rebase origin/main && git stash pop; }; f"
+
+    steal = "!f() { git lfs unlock $1 --force && git lfs lock $1; }; f"
+
+	new = "!f() { [ x$# != x1 ] && echo new branch name required >&2 || stashed_commit=\"$(git stash create)\" && echo IN CASE OF ERROR stash id is: \"${stashed_commit}\" && git reset --hard && git switch main && git fetch --prune && git pull && git pr && git switch -c user/jp/\"$1\" && [ \"${stashed_commit}\" != \"\" ] && git stash apply \"${stashed_commit}\"; }; f"
+
+	# Creates a stash, and only pops it if it was created
+	exampleStash = "!f() { stashed_commit=\"$(git stash create)\" && git reset --hard && echo stash id \"${stashed_commit}\" && git status && [ \"${stashed_commit}\" != \"\" ] && git stash apply \"${stashed_commit}\" && git status; }; f"
+	
+	test4 = "!f() { stashed_commit=\"$(git stash create)\" && git reset --hard && git status ; }; f"
+
+	missingOldest = "!f() {  git fetch --quiet && echo 'Name;Email;Subject;Hash;Bug? (for filtering);Devops? (for filtering);Need to add to master? (Answer needed!); Comments' && git log --left-right --graph --cherry-pick --pretty=format:'%an;%ae;%s;=HYPERLINK(\"https://github.com/Mojang/Dungeons/commit/%h\",\"%h\");;;;' ${2}...${1} | grep '< ' | cut -c3- | tac; }; f"
+
+	missingCsv = "!f() {  git fetch --quiet && echo 'Name,Email,Subject,Hash,Bug? (for filtering),Devops? (for filtering),Currently on master? (Answer Yes/No),Comments' && git log --left-right --graph --cherry-pick --pretty=format:'\"%an\",\"%ae\",\"%s\",\"=HYPERLINK(\"\"https://github.com/Mojang/Dungeons/commit/%h\"\";\"\"%h\"\")\",,,,' ${2}...${1} | grep '< ' | cut -c3- | tac; }; f"
+	
+	missing = "!f() { git cherry ${1} ${2} --verbose --abbrev=10 | grep "+ "; }; f"
+
+	missingNext = "!f() {  git fetch --quiet && echo 'Author,Subject,Hash,Bug? (for filtering),Devops? (for filtering),Currently on master? (Answer Yes/No),Comments' && git log --left-right --graph --cherry-pick --pretty=format:'\"=HYPERLINK(\"\"mailto:%ae\"\";\"\"%an\"\")\",\"%s\",\"=HYPERLINK(\"\"https://github.com/Mojang/Dungeons/commit/%h\"\";\"\"%h\"\")\",,,,' ${2}...${1} | grep '< ' | cut -c3- | tac; }; f"
+
+	lock = "!f() { git diff --name-only --cached | xargs git lfs lock; }; f"
+	praise = blame
+
+[diff]
+	tool = p4merge
+[difftool "p4merge"]
+	path = F:\\Program Files\\Perforce\\p4merge.exe
+[merge]
+	tool = p4merge
+[mergetool "p4merge"]
+	path = F:\\Program Files\\Perforce\\p4merge.exe
+
+[diff "ucs2-xyz"]
+	textconv = iconv -f ucs-2 -t utf-8
+[filter "ucs2-xyz"]
+	clean = iconv -f utf-8 -t ucs-2
+	smudge = iconv -f ucs-2 -t utf-8
+	required
